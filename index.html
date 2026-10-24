@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noteindex</title>
+    <!-- Librería externa para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Enlace al archivo de estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- Pantalla de Inicio de Sesión (Bloqueo de seguridad) -->
+<div id="loginScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; z-index: 9999; display: flex; justify-content: center; align-items: center;">
+    <div style="background-color: #1a1f24; border: 2px solid #00674F; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 0 20px rgba(0, 103, 79, 0.8); text-align: center;">
+        <h2 style="color: #00674F; font-family: Georgia, serif; font-style: italic; margin-bottom: 20px;">Noteindex - Acceso Privado</h2>
+        <input type="email" id="loginEmail" placeholder="Tu correo electrónico" style="width: 100%; padding: 12px; margin-bottom: 15px; background-color: #111518; border: 1px solid #00674F; border-radius: 8px; color: #f1f5f9; box-sizing: border-box;">
+        <input type="password" id="loginPassword" placeholder="Contraseña" style="width: 100%; padding: 12px; margin-bottom: 20px; background-color: #111518; border: 1px solid #00674F; border-radius: 8px; color: #f1f5f9; box-sizing: border-box;">
+        <button onclick="loginUser()" style="width: 100%; background-color: #00674F; color: white; border: none; padding: 12px; font-weight: bold; border-radius: 8px; cursor: pointer; font-size: 16px;">Entrar al Glosario</button>
+        <p id="loginError" style="color: #ef4444; margin-top: 15px; font-size: 14px; display: none;"></p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Botón Calendario en la esquina superior izquierda -->
+    <button class="calendar-top-btn" onclick="openCalendarModal()">📅 Calendario</button>
+
+    <!-- Botón de PDF en la esquina superior derecha -->
+    <button class="pdf-top-btn" onclick="exportToPDF()">📄 Convertir a PDF</button>
+
+    <!-- Logo del programa -->
+    <div style="text-align: center;">
+        <img src="logo.png" alt="Noteindex Logo" style="max-height: 80px; margin-top: 10px;" onerror="this.style.display='none'">
+    </div>
+
+    <!-- Título Principal -->
+    <div class="app-title">Noteindex</div>
+
+    <!-- Barra de Navegador / Índice de Búsqueda -->
+    <div class="search-bar-container">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por palabra o categoría..." oninput="loadGlossary()">
+    </div>
+
+    <!-- Formulario -->
+    <div class="card">
+        <input type="hidden" id="editId" value="">
+
+        <div class="form-group">
+            <label for="wordInput">Palabra a definir:</label>
+            <input type="text" id="wordInput" placeholder="Ej. Matemáticas">
+        </div>
+
+        <div class="form-group">
+            <label for="categoryInput">Categoría:</label>
+            <select id="categoryInput">
+                <option value="Construcción e ingeniería civil">Construcción e ingeniería civil</option>
+                <option value="Matemáticas y física">Matemáticas y física</option>
+                <option value="Educación y salud">Educación y salud</option>
+                <option value="Ciencia">Ciencia</option>
+                <option value="General">General</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="definitionInput">Concepto / Definición:</label>
+            <textarea id="definitionInput" placeholder="Escribe tu concepto o definición aquí..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label>Imagen o GIF (Opcional):</label>
+            <label for="imageInput" class="custom-file-upload">Seleccionar archivo</label>
+            <input type="file" id="imageInput" accept="image/*" onchange="updateFileName()">
+            <span id="fileNameDisplay" class="file-name-span">Ningún archivo seleccionado</span>
+        </div>
+
+        <button class="btn-submit" id="saveBtn" onclick="saveWord()">Guardado</button>
+    </div>
+
+    <!-- Lista del Glosario -->
+    <div id="glossaryDisplay"></div>
+</div>
+
+<!-- Modal del Calendario (2026 - 2028) -->
+<div id="calendarModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
+    <div style="background-color: #1a1f24; border: 2px solid #00674F; border-radius: 16px; padding: 25px; width: 100%; max-width: 600px; box-shadow: 0 0 25px rgba(0, 103, 79, 0.8); color: #f1f5f9; max-height: 90vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="color: #00674F; margin: 0; font-size: 22px;">📅 Calendario Noteindex (2026 - 2028)</h2>
+            <button onclick="closeCalendarModal()" style="background: #991b1b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: bold;">✕ Cerrar</button>
+        </div>
+        
+        <!-- Selectores de Año y Mes -->
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <select id="calYear" onchange="renderCalendarGrid()" style="flex: 1; padding: 10px; background: #111518; border: 1px solid #00674F; color: #f1f5f9; border-radius: 8px; font-size: 16px;">
+                <option value="2026">2026</option>
+                <option value="2027">2027</option>
+                <option value="2028">2028</option>
+            </select>
+            <select id="calMonth" onchange="renderCalendarGrid()" style="flex: 2; padding: 10px; background: #111518; border: 1px solid #00674F; color: #f1f5f9; border-radius: 8px; font-size: 16px;">
+                <option value="0">Enero</option>
+                <option value="1">Febrero</option>
+                <option value="2">Marzo</option>
+                <option value="3">Abril</option>
+                <option value="4">Mayo</option>
+                <option value="5">Junio</option>
+                <option value="6">Julio</option>
+                <option value="7">Agosto</option>
+                <option value="8">Septiembre</option>
+                <option value="9">Octubre</option>
+                <option value="10">Noviembre</option>
+                <option value="11">Diciembre</option>
+            </select>
+        </div>
+
+        <!-- Días de la semana -->
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; font-weight: bold; color: #008767; margin-bottom: 8px; font-size: 14px;">
+            <div>Lun</div><div>Mar</div><div>Mié</div><div>Jue</div><div>Vie</div><div>Sáb</div><div>Dom</div>
+        </div>
+
+        <!-- Cuadrícula del Calendario -->
+        <div id="calendarGrid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; margin-bottom: 20px;">
+            <!-- Generado dinámicamente -->
+        </div>
+
+        <!-- Sección de Notas para el Día Seleccionado con Botón Editar -->
+        <div id="dayNoteSection" style="background: #111518; border: 1px solid #2d3748; border-radius: 10px; padding: 15px; display: none;">
+            <h3 id="selectedDateTitle" style="color: #00674F; margin-top: 0; font-size: 16px;">Nota para el día: </h3>
+            
+            <div id="displayNoteContainer" style="display: none; background: #1a1f24; border: 1px solid #00674F; border-radius: 8px; padding: 12px; margin-bottom: 10px;">
+                <p id="currentNoteText" style="margin: 0 0 10px 0; color: #f1f5f9; white-space: pre-wrap; font-size: 14px;"></p>
+                <button onclick="enableNoteEdit()" style="background: #00674F; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold;">✏️ Editar Nota</button>
+            </div>
+
+            <textarea id="dayNoteInput" placeholder="Escribe una nota para este día..." style="width: 100%; background: #1a1f24; border: 1px solid #00674F; color: #f1f5f9; padding: 10px; border-radius: 6px; resize: vertical; min-height: 80px; box-sizing: border-box; font-size: 14px; display: none;"></textarea>
+            
+            <button onclick="saveDayNote()" style="margin-top: 10px; background: #00674F; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 15px;">Guardar Nota en la Nube</button>
+        </div>
+    </div>
+</div>
+
+<!-- Plantilla oculta para el PDF -->
+<div id="pdfExportTemplate">
+    <div class="pdf-header">GLOSARIO</div>
+    <div id="pdfContent"></div>
+</div>
+
+<!-- Enlace al archivo de lógica JavaScript -->
+<script type="module" src="script.js"></script>
+
+</body>
+</html>

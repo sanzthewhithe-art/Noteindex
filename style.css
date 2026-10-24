@@ -1,0 +1,387 @@
+:root {
+    --bg-color: rgba(0, 0, 0, 0.95);
+    --card-bg: #1a1f24;
+    --input-bg: #111518;
+    --emerald: #00674F;
+    --emerald-hover: #008767;
+    --emerald-glow: 0 0 12px rgba(0, 103, 79, 0.8), 0 0 24px rgba(0, 103, 79, 0.4);
+    --text-contrast: #f1f5f9;
+    --text-muted: #94a3b8;
+    --border-color: #2d3748;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #000000;
+    color: var(--text-contrast);
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.container {
+    width: 100%;
+    max-width: 850px;
+    position: relative;
+    padding-top: 45px; /* Espacio para los botones superiores */
+}
+
+/* Botón de Calendario en la esquina superior izquierda */
+.calendar-top-btn {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: auto;
+    background-color: var(--emerald);
+    color: #ffffff;
+    border: 1px solid var(--emerald);
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: var(--emerald-glow);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.calendar-top-btn:hover {
+    background-color: var(--emerald-hover);
+    transform: translateY(-2px);
+}
+
+/* Botón de PDF en la esquina superior derecha */
+.pdf-top-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: auto;
+    background-color: var(--emerald);
+    color: #ffffff;
+    border: 1px solid var(--emerald);
+    padding: 8px 16px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: var(--emerald-glow);
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.pdf-top-btn:hover {
+    background-color: var(--emerald-hover);
+    transform: translateY(-2px);
+}
+
+/* Título Principal */
+.app-title {
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 30px;
+    color: var(--emerald);
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 25px;
+    font-style: italic;
+    text-shadow: 0 0 10px rgba(0, 103, 79, 0.5);
+}
+
+/* Barra de búsqueda / Índice */
+.search-bar-container {
+    margin-bottom: 25px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px;
+    background-color: var(--input-bg);
+    border: 2px solid var(--emerald);
+    border-radius: 10px;
+    color: var(--text-contrast);
+    font-size: 16px;
+    box-shadow: var(--emerald-glow);
+    box-sizing: border-box;
+    outline: none;
+}
+
+/* Formulario Principal */
+.card {
+    background-color: var(--card-bg);
+    border: 2px solid var(--emerald);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: var(--emerald-glow);
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+input[type="text"], select, textarea {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--input-bg);
+    border: 1px solid var(--emerald);
+    border-radius: 8px;
+    color: var(--text-contrast);
+    font-size: 16px;
+    box-sizing: border-box;
+    transition: border 0.3s ease;
+}
+
+input[type="text"]:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #00b386;
+    box-shadow: 0 0 8px rgba(0, 179, 134, 0.6);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 110px;
+    font-size: 18px;
+}
+
+/* Botón Seleccionar Archivo */
+.custom-file-upload {
+    display: inline-block;
+    background-color: var(--emerald);
+    color: #ffffff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+    border: 1px solid var(--emerald);
+    box-shadow: 0 0 8px rgba(0, 103, 79, 0.5);
+    transition: all 0.2s ease;
+}
+
+.custom-file-upload:hover {
+    background-color: var(--emerald-hover);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-name-span {
+    margin-left: 12px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* Botón Guardado Principal */
+.btn-submit {
+    background-color: var(--emerald);
+    color: #ffffff;
+    border: 1px solid var(--emerald);
+    padding: 14px 24px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: var(--emerald-glow);
+    transition: all 0.2s ease;
+    margin-top: 10px;
+}
+
+.btn-submit:hover {
+    background-color: var(--emerald-hover);
+}
+
+/* Animación estilo nube flotante */
+@keyframes cloudFloat {
+    0% {
+        opacity: 0;
+        transform: translateY(25px) scale(0.97);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Sección de Glosario Guardado */
+.category-container {
+    margin-bottom: 30px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--emerald);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 103, 79, 0.3);
+    animation: cloudFloat 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.category-title {
+    font-size: 25px;
+    color: var(--emerald);
+    border-bottom: 2px solid var(--emerald);
+    padding-bottom: 8px;
+    margin-top: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-shadow: 0 0 5px rgba(0, 103, 79, 0.5);
+}
+
+.glossary-item {
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 18px;
+    margin-top: 18px;
+    position: relative;
+    animation: cloudFloat 0.5s ease-out forwards;
+}
+
+.item-word {
+    font-size: 20px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--emerald);
+    padding-left: 10px;
+}
+
+.item-definition {
+    font-size: 18px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-bottom: 15px;
+}
+
+.item-image {
+    max-width: 100%;
+    max-height: 280px;
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    display: block;
+    border: 1px solid var(--emerald);
+}
+
+/* Sugerencias / Sinónimos */
+.synonyms-container {
+    margin-top: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+}
+
+.synonyms-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.synonym-chip {
+    background-color: #1a2e26;
+    color: #a7f3d0;
+    border: 1px solid var(--emerald);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* Botones de Acción */
+.action-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 15px;
+    border-top: 1px solid #2d3748;
+    padding-top: 10px;
+}
+
+.btn-edit {
+    background-color: var(--emerald);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;
+}
+
+.btn-edit:hover {
+    background-color: var(--emerald-hover);
+}
+
+.btn-delete {
+    background-color: #991b1b;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;
+}
+
+.btn-delete:hover {
+    background-color: #dc2626;
+}
+
+.empty-msg {
+    color: var(--text-muted);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    font-size: 18px;
+}
+
+/* Estilos de la hoja PDF */
+#pdfExportTemplate {
+    display: none;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 40px;
+    font-family: Arial, sans-serif;
+}
+
+.pdf-header {
+    text-align: center;
+    font-weight: bold;
+    font-size: 22px;
+    margin-bottom: 25px;
+    text-transform: uppercase;
+}
+
+.pdf-letter-group {
+    margin-bottom: 20px;
+}
+
+.pdf-letter-header {
+    font-size: 18px;
+    font-weight: bold;
+    border-bottom: 2px solid #000000;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+}
+
+.pdf-entry {
+    margin-bottom: 12px;
+    font-size: 14px;
+    text-align: justify;
+    line-height: 1.5;
+}
+
+.pdf-word {
+    font-weight: bold;
+}
