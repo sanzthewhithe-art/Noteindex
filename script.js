@@ -336,7 +336,6 @@ function renderGlossary() {
             const synonyms = getSynonyms(item.word);
             const synonymChips = synonyms.map(s => `<span class="synonym-chip">${s}</span>`).join(' ');
 
-            // Generar Galería de Múltiples Imágenes (Mosaico estilo WhatsApp)
             let imagesList = item.images || (item.image ? [item.image] : []);
             let galleryHtml = '';
             
@@ -377,9 +376,15 @@ function renderGlossary() {
         display.appendChild(catDiv);
     }
 
-    // Renderizar ecuaciones matemáticas con MathJax
-    if (window.MathJax && window.MathJax.typesetPromise) {
-        window.MathJax.typesetPromise();
+    // Renderizar ecuaciones matemáticas de forma segura cuando MathJax esté listo
+    if (window.MathJax) {
+        if (window.MathJax.typesetPromise) {
+            window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+        } else if (window.MathJax.startup && window.MathJax.startup.promise) {
+            window.MathJax.startup.promise.then(() => {
+                window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
+            });
+        }
     }
 }
 
@@ -471,14 +476,4 @@ window.exportToPDF = function() {
     html2pdf().set(opt).from(element).save().then(() => {
         element.style.display = 'none';
     });
-};
-// ⚠️ REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO DE FIREBASE ⚠️
-const firebaseConfig = {
-  apiKey: "AIzaSyCoxvKElcSHL8teVaopOw9lEkWDDNvdAIo",
-  authDomain: "noteindex-a3df9.firebaseapp.com",
-  projectId: "noteindex-a3df9",
-  storageBucket: "noteindex-a3df9.firebasestorage.app",
-  messagingSenderId: "731064985722",
-  appId: "1:731064985722:web:67c8e2ab4601e8f197f3c3",
-  measurementId: "G-2NEPNKQ97S"
 };
