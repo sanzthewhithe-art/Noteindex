@@ -1,4 +1,3 @@
-// Importar funciones necesarias de Firebase desde la CDN
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { 
     getFirestore, 
@@ -27,7 +26,6 @@ const firebaseConfig = {
   measurementId: "G-2NEPNKQ97S"
 };
 
-// Inicializar Firebase, Base de Datos y Autenticación
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -38,7 +36,6 @@ let liveGlossary = [];
 let calendarNotes = {}; 
 let selectedDateKey = "";
 
-// Diccionario de sinónimos
 const synonymDictionary = {
     "caminar": ["andar", "pasear", "marchar", "recorrer"],
     "matemáticas": ["cálculo", "aritmética", "álgebra", "geometría"],
@@ -50,7 +47,7 @@ const synonymDictionary = {
     "estructura": ["armazón", "construcción", "sistema", "configuración"]
 };
 
-// --- VERIFICAR SI EL USUARIO HA INICIADO SESIÓN ---
+// --- AUTHENTICATION ---
 onAuthStateChanged(auth, (user) => {
     const loginScreen = document.getElementById('loginScreen');
     if (user) {
@@ -77,7 +74,7 @@ window.loginUser = function() {
         });
 };
 
-// --- ESCUCHAR CAMBIOS EN TIEMPO REAL DEL GLOSARIO ---
+// --- SINCRONIZACIÓN EN TIEMPO REAL ---
 onSnapshot(glossaryCollection, (snapshot) => {
     liveGlossary = [];
     snapshot.forEach((documento) => {
@@ -89,7 +86,6 @@ onSnapshot(glossaryCollection, (snapshot) => {
     renderGlossary();
 });
 
-// --- ESCUCHAR NOTAS DEL CALENDARIO EN TIEMPO REAL ---
 function loadCalendarNotes() {
     onSnapshot(calendarNotesCollection, (snapshot) => {
         calendarNotes = {};
@@ -100,7 +96,7 @@ function loadCalendarNotes() {
     });
 }
 
-// --- FUNCIONES DEL CALENDARIO (2026 - 2028) ---
+// --- CALENDARIO ---
 window.openCalendarModal = function() {
     document.getElementById('calendarModal').style.display = 'flex';
     renderCalendarGrid();
@@ -122,14 +118,13 @@ window.renderCalendarGrid = function() {
     const totalDays = new Date(year, month + 1, 0).getDate();
 
     for (let i = 0; i < adjustedFirstDay; i++) {
-        const emptyCell = document.createElement('div');
-        grid.appendChild(emptyCell);
+        grid.appendChild(document.createElement('div'));
     }
 
     for (let day = 1; day <= totalDays; day++) {
         const dateKey = `${year}-${month}-${day}`;
         const dayCell = document.createElement('div');
-        dayCell.style.cssText = "background-color: #111518; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 5px; cursor: pointer; transition: all 0.2s; position: relative;";
+        dayCell.style.cssText = "background-color: #111518; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 5px; cursor: pointer; transition: all 0.2s;";
         
         let hasNote = Boolean(calendarNotes[dateKey]);
         
@@ -158,12 +153,10 @@ function selectCalendarDay(year, month, day) {
     const currentNoteText = document.getElementById('currentNoteText');
 
     if (noteText) {
-        // Mostrar vista con botón de editar si ya existe una nota
         if (currentNoteText) currentNoteText.textContent = noteText;
         if (displayNoteContainer) displayNoteContainer.style.display = 'block';
         if (dayNoteInput) dayNoteInput.style.display = 'none';
     } else {
-        // Mostrar campo de texto directamente si el día está vacío
         if (dayNoteInput) {
             dayNoteInput.value = '';
             dayNoteInput.style.display = 'block';
@@ -172,6 +165,11 @@ function selectCalendarDay(year, month, day) {
     }
 
     document.getElementById('dayNoteSection').style.display = 'block';
+    
+    // Renderizar fórmulas en notas de calendario si existen
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+    }
 }
 
 window.enableNoteEdit = function() {
@@ -195,20 +193,19 @@ window.saveDayNote = async function() {
             note: noteText,
             updatedAt: Date.now()
         });
-        alert("¡Nota guardada y sincronizada en la nube!");
         selectCalendarDay(...selectedDateKey.split('-').map(Number));
     } catch (error) {
-        console.error("Error al guardar nota de calendario: ", error);
-        alert("No se pudo guardar la nota. Asegúrate de actualizar las Reglas de Firebase.");
+        console.error("Error al guardar nota: ", error);
+        alert("No se pudo guardar la nota.");
     }
 };
 
-// --- GESTIÓN DE ARCHIVOS Y GLOSARIO ---
+// --- GESTIÓN DE ARCHIVOS MÚLTIPLES ---
 window.updateFileName = function() {
     const input = document.getElementById('imageInput');
     const display = document.getElementById('fileNameDisplay');
     if (input.files && input.files.length > 0) {
-        display.textContent = input.files[0].name;
+        display.textContent = `${input.files.length} imagen(es) seleccionada(s)`;
     } else {
         display.textContent = 'Ningún archivo seleccionado';
     }
@@ -222,29 +219,38 @@ window.saveWord = async function() {
     const editId = document.getElementById('editId').value;
 
     if (!word || !definition) {
-        alert('Por favor completa la palabra y la definición.');
+        alert('Por favor completa la palabra y el concepto/cálculo.');
         return;
     }
 
-    const file = imageInput.files[0];
-
-    if (file) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async function () {
-            await processCloudSave(word, category, definition, reader.result, editId);
-        };
+    const files = Array.from(imageInput.files);
+    
+    if (files.length > 0) {
+        // Convertir múltiples archivos a código DataURL
+        const imagePromises = files.map(file => {
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        });
+        
+        const imagesBase64 = await Promise.all(imagePromises);
+        await processCloudSave(word, category, definition, imagesBase64, editId);
     } else {
-        let currentImage = null;
+        let existingImages = [];
         if (editId) {
             let existing = liveGlossary.find(item => item.id === editId);
-            if (existing) currentImage = existing.image || null;
+            if (existing) {
+                // Compatibilidad con imágenes individuales previas o conjuntos
+                existingImages = existing.images || (existing.image ? [existing.image] : []);
+            }
         }
-        await processCloudSave(word, category, definition, currentImage, editId);
+        await processCloudSave(word, category, definition, existingImages, editId);
     }
 };
 
-async function processCloudSave(word, category, definition, image, editId) {
+async function processCloudSave(word, category, definition, imagesArray, editId) {
     try {
         if (editId) {
             const itemRef = doc(db, "glosario", editId);
@@ -252,16 +258,16 @@ async function processCloudSave(word, category, definition, image, editId) {
                 word: word,
                 category: category,
                 definition: definition,
-                image: image
+                images: imagesArray
             });
             document.getElementById('editId').value = '';
-            document.getElementById('saveBtn').textContent = 'Guardado';
+            document.getElementById('saveBtn').textContent = 'Guardar Concepto';
         } else {
             await addDoc(glossaryCollection, {
                 word: word,
                 category: category,
                 definition: definition,
-                image: image,
+                images: imagesArray,
                 timestamp: Date.now()
             });
         }
@@ -271,7 +277,7 @@ async function processCloudSave(word, category, definition, image, editId) {
         document.getElementById('imageInput').value = '';
         document.getElementById('fileNameDisplay').textContent = 'Ningún archivo seleccionado';
     } catch (error) {
-        console.error("Error al guardar en Firebase: ", error);
+        console.error("Error al guardar: ", error);
         alert("Ocurrió un error al guardar en la nube.");
     }
 }
@@ -307,16 +313,14 @@ function renderGlossary() {
     }
 
     if (itemsToDisplay.length === 0) {
-        display.innerHTML = '<div class="empty-msg">No hay conceptos guardados todavía en la nube.</div>';
+        display.innerHTML = '<div class="empty-msg">No hay conceptos o cálculos guardados.</div>';
         return;
     }
 
     const categories = {};
     itemsToDisplay.forEach(item => {
         const cat = item.category || "General";
-        if (!categories[cat]) {
-            categories[cat] = [];
-        }
+        if (!categories[cat]) categories[cat] = [];
         categories[cat].push(item);
     });
 
@@ -332,11 +336,29 @@ function renderGlossary() {
             const synonyms = getSynonyms(item.word);
             const synonymChips = synonyms.map(s => `<span class="synonym-chip">${s}</span>`).join(' ');
 
+            // Generar Galería de Múltiples Imágenes (Mosaico estilo WhatsApp)
+            let imagesList = item.images || (item.image ? [item.image] : []);
+            let galleryHtml = '';
+            
+            if (imagesList.length > 0) {
+                let gridClass = 'gallery-multi';
+                if (imagesList.length === 1) gridClass = 'gallery-1';
+                else if (imagesList.length === 2) gridClass = 'gallery-2';
+                else if (imagesList.length === 3) gridClass = 'gallery-3';
+                else if (imagesList.length === 4) gridClass = 'gallery-4';
+
+                galleryHtml = `<div class="image-gallery ${gridClass}">`;
+                imagesList.forEach(imgUrl => {
+                    galleryHtml += `<img src="${imgUrl}" class="gallery-thumb" onclick="openLightbox('${imgUrl}')" alt="${item.word}">`;
+                });
+                galleryHtml += `</div>`;
+            }
+
             catHtml += `
                 <div class="glossary-item">
                     <div class="item-word">${item.word}</div>
                     <div class="item-definition">${item.definition}</div>
-                    ${item.image ? `<img src="${item.image}" class="item-image" alt="${item.word}">` : ''}
+                    ${galleryHtml}
                     
                     <div class="synonyms-container">
                         <span class="synonyms-label">Sinónimos sugeridos:</span>
@@ -354,7 +376,27 @@ function renderGlossary() {
         catDiv.innerHTML = catHtml;
         display.appendChild(catDiv);
     }
+
+    // Renderizar ecuaciones matemáticas con MathJax
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+    }
 }
+
+// Visualizador de Imágenes en Pantalla Completa
+window.openLightbox = function(src) {
+    const modal = document.getElementById('lightboxModal');
+    const img = document.getElementById('lightboxImage');
+    if (modal && img) {
+        img.src = src;
+        modal.style.display = 'flex';
+    }
+};
+
+window.closeLightbox = function() {
+    const modal = document.getElementById('lightboxModal');
+    if (modal) modal.style.display = 'none';
+};
 
 window.editItem = function(id) {
     let item = liveGlossary.find(i => i.id === id);
@@ -392,9 +434,7 @@ window.exportToPDF = function() {
     const letterGroups = {};
     sortedGlossary.forEach(item => {
         const firstLetter = item.word.charAt(0).toUpperCase();
-        if (!letterGroups[firstLetter]) {
-            letterGroups[firstLetter] = [];
-        }
+        if (!letterGroups[firstLetter]) letterGroups[firstLetter] = [];
         letterGroups[firstLetter].push(item);
     });
 
@@ -432,4 +472,13 @@ window.exportToPDF = function() {
         element.style.display = 'none';
     });
 };
-
+// ⚠️ REEMPLAZA ESTOS VALORES CON LOS DE TU PROYECTO DE FIREBASE ⚠️
+const firebaseConfig = {
+  apiKey: "AIzaSyCoxvKElcSHL8teVaopOw9lEkWDDNvdAIo",
+  authDomain: "noteindex-a3df9.firebaseapp.com",
+  projectId: "noteindex-a3df9",
+  storageBucket: "noteindex-a3df9.firebasestorage.app",
+  messagingSenderId: "731064985722",
+  appId: "1:731064985722:web:67c8e2ab4601e8f197f3c3",
+  measurementId: "G-2NEPNKQ97S"
+};
