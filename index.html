@@ -22,7 +22,7 @@
 </head>
 <body>
 
-<!-- Pantalla de Inicio de Sesión (Bloqueo de seguridad) -->
+<!-- Pantalla de Inicio de Sesión -->
 <div id="loginScreen" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #000000; z-index: 9999; display: flex; justify-content: center; align-items: center;">
     <div style="background-color: #1a1f24; border: 2px solid #00674F; padding: 30px; border-radius: 16px; width: 100%; max-width: 400px; box-shadow: 0 0 20px rgba(0, 103, 79, 0.8); text-align: center;">
         <h2 style="color: #00674F; font-family: Georgia, serif; font-style: italic; margin-bottom: 20px;">Noteindex - Acceso Privado</h2>
@@ -53,6 +53,17 @@
         <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por palabra, categoría o matemática..." oninput="loadGlossary()">
     </div>
 
+    <!-- Filtros Rápido por Categorías y Favoritos -->
+    <div class="filter-pills-container">
+        <button class="pill-btn active" data-cat="ALL" onclick="filterByCategory('ALL', this)">Todas</button>
+        <button class="pill-btn pill-fav" data-cat="FAV" onclick="filterByCategory('FAV', this)">⭐ Favoritos</button>
+        <button class="pill-btn" data-cat="Construcción e ingeniería civil" onclick="filterByCategory('Construcción e ingeniería civil', this)">🏗️ Construcción</button>
+        <button class="pill-btn" data-cat="Matemáticas y física" onclick="filterByCategory('Matemáticas y física', this)">📐 Matemáticas</button>
+        <button class="pill-btn" data-cat="Educación y salud" onclick="filterByCategory('Educación y salud', this)">📚 Educación</button>
+        <button class="pill-btn" data-cat="Ciencia" onclick="filterByCategory('Ciencia', this)">🔬 Ciencia</button>
+        <button class="pill-btn" data-cat="General" onclick="filterByCategory('General', this)">📌 General</button>
+    </div>
+
     <!-- Formulario Principal -->
     <div class="card">
         <input type="hidden" id="editId" value="">
@@ -75,7 +86,7 @@
 
         <div class="form-group">
             <label for="definitionInput">Concepto / Definición / Cálculo:</label>
-            <textarea id="definitionInput" placeholder="Escribe el concepto aquí. Para fórmulas matemáticas usa signos de dólar, ej: $x^2 + y^2 = r^2$"></textarea>
+            <textarea id="definitionInput" placeholder="Escribe el concepto aquí. Para fórmulas matemáticas usa signos de dólar, ej: $$x^2 + y^2 = r^2$$"></textarea>
         </div>
 
         <div class="form-group">
@@ -92,7 +103,7 @@
     <div id="glossaryDisplay"></div>
 </div>
 
-<!-- Modal del Calendario (2026 - 2028) -->
+<!-- Modal del Calendario -->
 <div id="calendarModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box;">
     <div style="background-color: #1a1f24; border: 2px solid #00674F; border-radius: 16px; padding: 25px; width: 100%; max-width: 600px; box-shadow: 0 0 25px rgba(0, 103, 79, 0.8); color: #f1f5f9; max-height: 90vh; overflow-y: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -136,25 +147,24 @@
                 <button onclick="enableNoteEdit()" style="background: #00674F; color: white; border: none; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: bold;">✏️ Editar Nota</button>
             </div>
 
-            <textarea id="dayNoteInput" placeholder="Escribe una nota para este día (también soporta matemáticas con $...$)..." style="width: 100%; background: #1a1f24; border: 1px solid #00674F; color: #f1f5f9; padding: 10px; border-radius: 6px; resize: vertical; min-height: 80px; box-sizing: border-box; font-size: 14px; display: none;"></textarea>
+            <textarea id="dayNoteInput" placeholder="Escribe una nota para este día..." style="width: 100%; background: #1a1f24; border: 1px solid #00674F; color: #f1f5f9; padding: 10px; border-radius: 6px; resize: vertical; min-height: 80px; box-sizing: border-box; font-size: 14px; display: none;"></textarea>
             
             <button onclick="saveDayNote()" style="margin-top: 10px; background: #00674F; color: white; border: none; padding: 10px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; font-size: 15px;">Guardar Nota en la Nube</button>
         </div>
     </div>
 </div>
 
-<!-- Modal para ver imágenes ampliadas (Lightbox estilo Galería) -->
+<!-- Modal Visor de Imágenes -->
 <div id="lightboxModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.92); z-index: 10001; justify-content: center; align-items: center;" onclick="closeLightbox()">
     <img id="lightboxImage" src="" style="max-width: 90%; max-height: 85vh; border: 2px solid #00674F; border-radius: 12px; box-shadow: 0 0 25px rgba(0,103,79,0.8);">
 </div>
 
-<!-- Plantilla oculta para el PDF -->
+<!-- Plantilla para Exportar a PDF -->
 <div id="pdfExportTemplate">
     <div class="pdf-header">GLOSARIO NOTEINDEX</div>
     <div id="pdfContent"></div>
 </div>
 
-<!-- Enlace al script JS -->
 <script type="module" src="script.js"></script>
 
 </body>

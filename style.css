@@ -5,6 +5,8 @@
     --emerald: #00674F;
     --emerald-hover: #008767;
     --emerald-glow: 0 0 12px rgba(0, 103, 79, 0.8), 0 0 24px rgba(0, 103, 79, 0.4);
+    --gold: #f59e0b;
+    --gold-glow: 0 0 14px rgba(245, 158, 11, 0.7);
     --text-contrast: #f1f5f9;
     --text-muted: #94a3b8;
     --border-color: #2d3748;
@@ -59,13 +61,13 @@ body {
     color: var(--emerald);
     text-align: center;
     margin-top: 10px;
-    margin-bottom: 25px;
+    margin-bottom: 20px;
     font-style: italic;
     text-shadow: 0 0 10px rgba(0, 103, 79, 0.5);
 }
 
 .search-bar-container {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
 }
 
 .search-input {
@@ -79,6 +81,57 @@ body {
     box-shadow: var(--emerald-glow);
     box-sizing: border-box;
     outline: none;
+}
+
+/* FILTROS RÁPIDOS POR CATEGORÍAS */
+.filter-pills-container {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--emerald) transparent;
+}
+
+.filter-pills-container::-webkit-scrollbar {
+    height: 4px;
+}
+.filter-pills-container::-webkit-scrollbar-thumb {
+    background-color: var(--emerald);
+    border-radius: 4px;
+}
+
+.pill-btn {
+    background-color: var(--input-bg);
+    color: var(--text-muted);
+    border: 1px solid var(--border-color);
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.pill-btn:hover {
+    border-color: var(--emerald);
+    color: var(--text-contrast);
+}
+
+.pill-btn.active {
+    background-color: var(--emerald);
+    color: #ffffff;
+    border-color: var(--emerald);
+    box-shadow: var(--emerald-glow);
+}
+
+.pill-btn.pill-fav.active {
+    background-color: var(--gold);
+    color: #000000;
+    border-color: var(--gold);
+    box-shadow: var(--gold-glow);
 }
 
 .card {
@@ -177,7 +230,7 @@ input[type="file"] {
 @keyframes cloudFloat {
     0% {
         opacity: 0;
-        transform: translateY(25px) scale(0.97);
+        transform: translateY(20px) scale(0.98);
     }
     100% {
         opacity: 1;
@@ -192,11 +245,11 @@ input[type="file"] {
     border-radius: 14px;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 103, 79, 0.3);
-    animation: cloudFloat 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: cloudFloat 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .category-title {
-    font-size: 25px;
+    font-size: 24px;
     color: var(--emerald);
     border-bottom: 2px solid var(--emerald);
     padding-bottom: 8px;
@@ -213,16 +266,41 @@ input[type="file"] {
     padding: 18px;
     margin-top: 18px;
     position: relative;
-    animation: cloudFloat 0.5s ease-out forwards;
+    transition: border 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Tarjeta Destacada como Favorita */
+.glossary-item.is-favorite {
+    border: 1px solid var(--gold);
+    box-shadow: inset 0 0 10px rgba(245, 158, 11, 0.15), 0 0 12px rgba(245, 158, 11, 0.3);
+}
+
+.item-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .item-word {
     font-size: 20px;
     font-weight: bold;
     color: #ffffff;
-    margin-bottom: 10px;
     border-left: 4px solid var(--emerald);
     padding-left: 10px;
+}
+
+.fav-btn {
+    background: transparent;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    padding: 0 5px;
+}
+
+.fav-btn:hover {
+    transform: scale(1.25);
 }
 
 .item-definition {
@@ -234,7 +312,6 @@ input[type="file"] {
     overflow-x: auto;
 }
 
-/* GALERÍA DE IMÁGENES ESTILO WHATSAPP (Mosaico dinámico) */
 .image-gallery {
     display: grid;
     gap: 8px;

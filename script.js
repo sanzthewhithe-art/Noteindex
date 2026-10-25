@@ -35,6 +35,7 @@ const calendarNotesCollection = collection(db, "calendario_notas");
 let liveGlossary = [];
 let calendarNotes = {}; 
 let selectedDateKey = "";
+let currentCategoryFilter = "ALL";
 
 const synonymDictionary = {
     "caminar": ["andar", "pasear", "marchar", "recorrer"],
@@ -47,7 +48,7 @@ const synonymDictionary = {
     "estructura": ["armazón", "construcción", "sistema", "configuración"]
 };
 
-// --- AUTHENTICATION ---
+// --- AUTENTICACIÓN ---
 onAuthStateChanged(auth, (user) => {
     const loginScreen = document.getElementById('loginScreen');
     if (user) {
@@ -166,7 +167,6 @@ function selectCalendarDay(year, month, day) {
 
     document.getElementById('dayNoteSection').style.display = 'block';
     
-    // Renderizar fórmulas en notas de calendario si existen
     if (window.MathJax && window.MathJax.typesetPromise) {
         window.MathJax.typesetPromise();
     }
@@ -200,6 +200,31 @@ window.saveDayNote = async function() {
     }
 };
 
+// --- MANEJO DE FILTROS Y FAVORITOS ---
+window.filterByCategory = function(category, btnElement) {
+    currentCategoryFilter = category;
+    
+    // Actualizar estilo visual de los botones píldora
+    const buttons = document.querySelectorAll('.pill-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (btnElement) {
+        btnElement.classList.add('active');
+    }
+    
+    renderGlossary();
+};
+
+window.toggleFavorite = async function(id, currentStatus) {
+    try {
+        const itemRef = doc(db, "glosario", id);
+        await updateDoc(itemRef, {
+            isFavorite: !currentStatus
+        });
+    } catch (error) {
+        console.error("Error al actualizar favorito: ", error);
+    }
+};
+
 // --- GESTIÓN DE ARCHIVOS MÚLTIPLES ---
 window.updateFileName = function() {
     const input = document.getElementById('imageInput');
@@ -226,7 +251,6 @@ window.saveWord = async function() {
     const files = Array.from(imageInput.files);
     
     if (files.length > 0) {
-        // Convertir múltiples archivos a código DataURL
         const imagePromises = files.map(file => {
             return new Promise((resolve) => {
                 const reader = new FileReader();
@@ -239,18 +263,19 @@ window.saveWord = async function() {
         await processCloudSave(word, category, definition, imagesBase64, editId);
     } else {
         let existingImages = [];
+        let existingFav = false;
         if (editId) {
             let existing = liveGlossary.find(item => item.id === editId);
             if (existing) {
-                // Compatibilidad con imágenes individuales previas o conjuntos
                 existingImages = existing.images || (existing.image ? [existing.image] : []);
+                existingFav = Boolean(existing.isFavorite);
             }
         }
-        await processCloudSave(word, category, definition, existingImages, editId);
+        await processCloudSave(word, category, definition, existingImages, editId, existingFav);
     }
 };
 
-async function processCloudSave(word, category, definition, imagesArray, editId) {
+async function processCloudSave(word, category, definition, imagesArray, editId, isFav = false) {
     try {
         if (editId) {
             const itemRef = doc(db, "glosario", editId);
@@ -268,6 +293,7 @@ async function processCloudSave(word, category, definition, imagesArray, editId)
                 category: category,
                 definition: definition,
                 images: imagesArray,
+                isFavorite: isFav,
                 timestamp: Date.now()
             });
         }
@@ -304,6 +330,7 @@ function renderGlossary() {
 
     let itemsToDisplay = [...liveGlossary];
 
+    // 1. Filtrar por búsqueda de texto
     if (searchVal) {
         itemsToDisplay = itemsToDisplay.filter(item => 
             (item.word && item.word.toLowerCase().includes(searchVal)) || 
@@ -312,8 +339,15 @@ function renderGlossary() {
         );
     }
 
+    // 2. Filtrar por categoría activa o favoritos
+    if (currentCategoryFilter === 'FAV') {
+        itemsToDisplay = itemsToDisplay.filter(item => item.isFavorite === true);
+    } else if (currentCategoryFilter !== 'ALL') {
+        itemsToDisplay = itemsToDisplay.filter(item => item.category === currentCategoryFilter);
+    }
+
     if (itemsToDisplay.length === 0) {
-        display.innerHTML = '<div class="empty-msg">No hay conceptos o cálculos guardados.</div>';
+        display.innerHTML = '<div class="empty-msg">No hay conceptos guardados que coincidan con el filtro seleccionado.</div>';
         return;
     }
 
@@ -353,9 +387,15 @@ function renderGlossary() {
                 galleryHtml += `</div>`;
             }
 
+            const isFav = Boolean(item.isFavorite);
+            const starIcon = isFav ? '⭐' : '☆';
+
             catHtml += `
-                <div class="glossary-item">
-                    <div class="item-word">${item.word}</div>
+                <div class="glossary-item ${isFav ? 'is-favorite' : ''}">
+                    <div class="item-header-row">
+                        <div class="item-word">${item.word}</div>
+                        <button class="fav-btn" onclick="toggleFavorite('${item.id}', ${isFav})" title="${isFav ? 'Quitar de Favoritos' : 'Marcar como Favorito'}">${starIcon}</button>
+                    </div>
                     <div class="item-definition">${item.definition}</div>
                     ${galleryHtml}
                     
@@ -376,7 +416,7 @@ function renderGlossary() {
         display.appendChild(catDiv);
     }
 
-    // Renderizar ecuaciones matemáticas de forma segura cuando MathJax esté listo
+    // Renderizar ecuaciones matemáticas
     if (window.MathJax) {
         if (window.MathJax.typesetPromise) {
             window.MathJax.typesetPromise().catch((err) => console.log('MathJax error:', err));
@@ -388,7 +428,7 @@ function renderGlossary() {
     }
 }
 
-// Visualizador de Imágenes en Pantalla Completa
+// Visualizador en Pantalla Completa
 window.openLightbox = function(src) {
     const modal = document.getElementById('lightboxModal');
     const img = document.getElementById('lightboxImage');
