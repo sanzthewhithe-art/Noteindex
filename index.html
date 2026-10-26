@@ -55,7 +55,7 @@
         <button onclick="adjustZoom(1)" class="zoom-btn" title="Acercar / Agrandar letra">A+</button>
     </div>
 
-    <!-- Filtros Rápidos por Categorías y Favoritos -->
+    <!-- Filtros Rápido por Categorías y Favoritos -->
     <div class="filter-pills-container">
         <button class="pill-btn active" data-cat="ALL" onclick="filterByCategory('ALL', this)">Todas</button>
         <button class="pill-btn pill-fav" data-cat="FAV" onclick="filterByCategory('FAV', this)">⭐ Favoritos</button>
@@ -91,10 +91,11 @@
             <textarea id="definitionInput" placeholder="Escribe el concepto aquí. Para fórmulas matemáticas usa signos de dólar, ej: $$x^2 + y^2 = r^2$$"></textarea>
         </div>
 
+        <!-- Selector de imágenes optimizado para Android WebView / APK -->
         <div class="form-group">
             <label>Imágenes o GIFs (Puedes seleccionar varias a la vez):</label>
             <label for="imageInput" class="custom-file-upload">🖼️ Seleccionar Imágenes</label>
-            <input type="file" id="imageInput" accept="image/*" multiple onchange="updateFileName()">
+            <input type="file" id="imageInput" accept="image/png, image/jpeg, image/jpg, image/gif, image/*" multiple="multiple" onchange="updateFileName()">
             <span id="fileNameDisplay" class="file-name-span">Ningún archivo seleccionado</span>
         </div>
 
