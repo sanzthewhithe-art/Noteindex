@@ -48,12 +48,14 @@
     <!-- Título Principal -->
     <div class="app-title">Noteindex</div>
 
-    <!-- Barra de Búsqueda -->
-    <div class="search-bar-container">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por palabra, categoría o matemática..." oninput="loadGlossary()">
+    <!-- Barra de Búsqueda con Botones de Zoom (A- / A+) -->
+    <div class="search-bar-container" style="display: flex; gap: 8px; align-items: center;">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar por palabra o fórmula..." oninput="loadGlossary()" style="flex: 1;">
+        <button onclick="adjustZoom(-1)" class="zoom-btn" title="Alejar / Reducir letra">A-</button>
+        <button onclick="adjustZoom(1)" class="zoom-btn" title="Acercar / Agrandar letra">A+</button>
     </div>
 
-    <!-- Filtros Rápido por Categorías y Favoritos -->
+    <!-- Filtros Rápidos por Categorías y Favoritos -->
     <div class="filter-pills-container">
         <button class="pill-btn active" data-cat="ALL" onclick="filterByCategory('ALL', this)">Todas</button>
         <button class="pill-btn pill-fav" data-cat="FAV" onclick="filterByCategory('FAV', this)">⭐ Favoritos</button>
@@ -70,7 +72,7 @@
 
         <div class="form-group">
             <label for="wordInput">Palabra o Fórmula a definir:</label>
-            <input type="text" id="wordInput" placeholder="Ej. Ecuación Cuadrática o $\frac{a}{b}$">
+            <input type="text" id="wordInput" placeholder="Ej. Asentamiento o $\frac{a}{b}$">
         </div>
 
         <div class="form-group">

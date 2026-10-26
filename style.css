@@ -10,6 +10,7 @@
     --text-contrast: #f1f5f9;
     --text-muted: #94a3b8;
     --border-color: #2d3748;
+    --def-font-size: 14px; /* Tamaño variable controlado por zoom */
 }
 
 body {
@@ -71,6 +72,24 @@ body {
     font-size: 14px;
     box-sizing: border-box;
     outline: none;
+}
+
+/* BOTONES DE ZOOM (A- / A+) */
+.zoom-btn {
+    background-color: var(--input-bg);
+    color: var(--text-contrast);
+    border: 2px solid var(--emerald);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: var(--emerald-glow);
+    transition: background 0.2s;
+}
+
+.zoom-btn:hover {
+    background-color: var(--emerald);
 }
 
 /* FILTROS RÁPIDOS */
@@ -218,11 +237,11 @@ input[type="file"] { display: none; }
     cursor: pointer;
 }
 
-/* SISTEMA DESPLEGABLE CORREGIDO PARA MÓVIL */
+/* DEFINICIÓN CON TAMAÑO DINÁMICO POR ZOOM */
 .item-definition {
-    font-size: 14px; /* Letra más pequeña y ordenada */
+    font-size: var(--def-font-size); 
     color: #e2e8f0;
-    line-height: 1.45;
+    line-height: 1.5;
     white-space: pre-wrap;
     margin-bottom: 6px;
     overflow-x: auto;
@@ -230,7 +249,7 @@ input[type="file"] { display: none; }
 
 .item-definition.collapsed {
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* Muestra máximo 3 líneas compactas */
+    -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
