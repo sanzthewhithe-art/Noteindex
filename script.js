@@ -26,7 +26,6 @@ const firebaseConfig = {
   measurementId: "G-2NEPNKQ97S"
 };
 
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
@@ -123,13 +122,13 @@ window.renderCalendarGrid = function() {
     for (let day = 1; day <= totalDays; day++) {
         const dateKey = `${year}-${month}-${day}`;
         const dayCell = document.createElement('div');
-        dayCell.style.cssText = "background-color: #111518; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 5px; cursor: pointer; transition: all 0.2s;";
+        dayCell.style.cssText = "background-color: #111518; border: 1px solid #2d3748; border-radius: 8px; padding: 10px 5px; cursor: pointer;";
         
         let hasNote = Boolean(calendarNotes[dateKey]);
         
         dayCell.innerHTML = `
-            <div style="font-weight: bold; font-size: 15px; color: ${hasNote ? '#00b386' : '#f1f5f9'};">${day}</div>
-            ${hasNote ? '<div style="font-size: 10px; color: #a7f3d0; background: #00674F; border-radius: 4px; margin-top: 4px; padding: 1px;">Nota</div>' : ''}
+            <div style="font-weight: bold; font-size: 14px; color: ${hasNote ? '#00b386' : '#f1f5f9'};">${day}</div>
+            ${hasNote ? '<div style="font-size: 9px; color: #a7f3d0; background: #00674F; border-radius: 4px; margin-top: 2px; padding: 1px;">Nota</div>' : ''}
         `;
 
         dayCell.onclick = () => selectCalendarDay(year, month, day);
@@ -206,16 +205,16 @@ window.toggleFavorite = async function(id, currentStatus) {
     }
 };
 
-// Función para alternar el texto desplegable
+// Función corregida para desplegar/contraer con botón dinámico
 window.toggleDefinition = function(id) {
     const defElement = document.getElementById(`def-${id}`);
     const btnElement = document.getElementById(`btn-def-${id}`);
     if (defElement && btnElement) {
-        defElement.classList.toggle('expanded');
-        if (defElement.classList.contains('expanded')) {
-            btnElement.textContent = 'Ver menos ▴';
-        } else {
+        defElement.classList.toggle('collapsed');
+        if (defElement.classList.contains('collapsed')) {
             btnElement.textContent = 'Ver más ▾';
+        } else {
+            btnElement.textContent = 'Ver menos ▴';
         }
     }
 };
@@ -224,7 +223,7 @@ window.updateFileName = function() {
     const input = document.getElementById('imageInput');
     const display = document.getElementById('fileNameDisplay');
     if (input.files && input.files.length > 0) {
-        display.textContent = `${input.files.length} imagen(es)`;
+        display.textContent = `${input.files.length} archivo(s)`;
     } else {
         display.textContent = 'Ningún archivo seleccionado';
     }
@@ -360,9 +359,9 @@ function renderGlossary() {
 
             const isFav = Boolean(item.isFavorite);
             const starIcon = isFav ? '⭐' : '☆';
-
-            // Comprobar si el texto es largo para mostrar el botón "Ver más"
-            const isLongText = item.definition && item.definition.length > 130;
+            
+            // Verificamos si el texto es extenso para aplicar la clase 'collapsed'
+            const isLongText = item.definition && item.definition.length > 90;
 
             catHtml += `
                 <div class="glossary-item ${isFav ? 'is-favorite' : ''}">
@@ -371,7 +370,7 @@ function renderGlossary() {
                         <button class="fav-btn" onclick="toggleFavorite('${item.id}', ${isFav})">${starIcon}</button>
                     </div>
                     
-                    <div id="def-${item.id}" class="item-definition">${item.definition}</div>
+                    <div id="def-${item.id}" class="item-definition ${isLongText ? 'collapsed' : ''}">${item.definition}</div>
                     ${isLongText ? `<button id="btn-def-${item.id}" class="btn-toggle-def" onclick="toggleDefinition('${item.id}')">Ver más ▾</button>` : ''}
                     
                     ${galleryHtml}
@@ -432,12 +431,4 @@ window.deleteItem = async function(id) {
             console.error("Error al eliminar: ", error);
         }
     }
-};
-
-window.exportToPDF = function() {
-    if (liveGlossary.length === 0) {
-        alert('No hay conceptos guardados.');
-        return;
-    }
-    // Lógica PDF conservada
 };
