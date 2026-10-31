@@ -92,6 +92,28 @@ body {
     background-color: var(--emerald);
 }
 
+/* BOTÓN GLOBAL PARA MOSTRAR/OCULTAR CONCEPTOS */
+.toggle-glossary-btn {
+    background-color: var(--input-bg);
+    color: var(--text-contrast);
+    border: 2px solid var(--emerald);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+    box-shadow: var(--emerald-glow);
+    transition: background 0.2s, transform 0.1s;
+}
+
+.toggle-glossary-btn:hover {
+    background-color: var(--emerald);
+}
+
+.toggle-glossary-btn:active {
+    transform: scale(0.98);
+}
+
 /* FILTROS RÁPIDOS */
 .filter-pills-container {
     display: flex;
@@ -341,5 +363,3 @@ input[type="file"] { display: none; }
     padding: 15px;
     font-size: 14px;
 }
-
-#pdfExportTemplate { display: none; }

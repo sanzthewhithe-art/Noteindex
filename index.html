@@ -102,6 +102,13 @@
         <button class="btn-submit" id="saveBtn" onclick="saveWord()">Guardar Concepto</button>
     </div>
 
+    <!-- Botón global para mostrar / ocultar la lista completa de conceptos -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button id="toggleGlossaryBtn" class="toggle-glossary-btn" onclick="toggleGlossaryVisibility()">
+            👁️ Ocultar conceptos
+        </button>
+    </div>
+
     <!-- Lista del Glosario -->
     <div id="glossaryDisplay"></div>
 </div>
@@ -164,7 +171,7 @@
 
 <!-- Plantilla para Exportar a PDF -->
 <div id="pdfExportTemplate">
-    <div class="pdf-header">GLOSARIO NOTEINDEX</div>
+    <div class="pdf-header"></div>
     <div id="pdfContent"></div>
 </div>
 

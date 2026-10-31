@@ -36,6 +36,7 @@ let liveGlossary = [];
 let calendarNotes = {}; 
 let selectedDateKey = "";
 let currentCategoryFilter = "ALL";
+let isGlossaryVisible = true; // Estado para ocultar/mostrar todo el glosario
 
 // Control de Zoom inicial (lee de la memoria del navegador o usa 13px por defecto para móvil)
 let currentFontSize = parseInt(localStorage.getItem('noteindex_zoom')) || 13;
@@ -46,15 +47,30 @@ function applyZoom() {
 }
 
 window.adjustZoom = function(direction) {
-    // Límites de tamaño (mínimo 11px, máximo 24px)
     currentFontSize += direction * 2;
     if (currentFontSize < 11) currentFontSize = 11;
     if (currentFontSize > 24) currentFontSize = 24;
     applyZoom();
 };
 
-// Aplicar zoom al cargar la página
 applyZoom();
+
+// FUNCIÓN PARA MOSTRAR / OCULTAR TODO EL GLOSARIO
+window.toggleGlossaryVisibility = function() {
+    isGlossaryVisible = !isGlossaryVisible;
+    const display = document.getElementById('glossaryDisplay');
+    const toggleBtn = document.getElementById('toggleGlossaryBtn');
+
+    if (display && toggleBtn) {
+        if (isGlossaryVisible) {
+            display.style.display = 'block';
+            toggleBtn.innerHTML = '👁️ Ocultar conceptos';
+        } else {
+            display.style.display = 'none';
+            toggleBtn.innerHTML = '👁️ Mostrar conceptos';
+        }
+    }
+};
 
 const synonymDictionary = {
     "caminar": ["andar", "pasear", "marchar", "recorrer"],
@@ -377,7 +393,6 @@ function renderGlossary() {
 
             const isFav = Boolean(item.isFavorite);
             const starIcon = isFav ? '⭐' : '☆';
-            
             const isLongText = item.definition && item.definition.length > 90;
 
             catHtml += `
@@ -455,5 +470,30 @@ window.exportToPDF = function() {
         alert('No hay conceptos guardados para exportar.');
         return;
     }
-    // Lógica PDF conservada
+    
+    let htmlContent = "";
+    liveGlossary.forEach(item => {
+        htmlContent += `
+            <div style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                <h3 style="color: #00674F; margin: 0 0 5px 0;">${item.word} (${item.category || 'General'})</h3>
+                <p style="margin: 0 0 5px 0; font-size: 14px; white-space: pre-wrap;">${item.definition}</p>
+            </div>
+        `;
+    });
+
+    document.getElementById('pdfContent').innerHTML = htmlContent;
+    const element = document.getElementById('pdfExportTemplate');
+    element.style.display = 'block';
+
+    const opt = {
+        margin:       10,
+        filename:     'Noteindex_Glosario.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2 },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save().then(() => {
+        element.style.display = 'none';
+    });
 };
